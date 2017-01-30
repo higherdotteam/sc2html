@@ -30,7 +30,7 @@ func leftPad2Len(s string, padStr string, overallLen int) string {
 }
 
 func SaveHTML(team, room string) {
-	ts := time.Now().Unix() - int64(31536000*5)
+	ts := time.Now().Unix()
 	tss := fmt.Sprintf("%d", ts)
 
 	teams := strings.Split(os.Getenv("SLACK_TEAMS"), ",")
@@ -41,23 +41,35 @@ func SaveHTML(team, room string) {
 		}
 		api := slack.New(tokens[i])
 
+		stack := make([]slack.Msg, 0)
 		j := 0
 		for {
 			j += 1000
-			hp := slack.HistoryParameters{Oldest: tss, Latest: "", Count: 1000, Inclusive: false, Unreads: false}
+			hp := slack.HistoryParameters{Oldest: "", Latest: tss, Count: 1000, Inclusive: false, Unreads: false}
 			list, _ := api.GetIMHistory(room, hp)
 			stamps := make([]string, 0)
 			for _, r := range list.Messages {
 				//SaveMsg(team, room, r.Msg)
 				//fmt.Println(r.Msg.Timestamp)
-				fmt.Println(r.Msg.Text)
+				stack = append([]slack.Msg{r.Msg}, stack...)
+				//fmt.Println(r.Msg.Text)
 				//fmt.Println(r.Msg.Attachments)
 				stamps = append(stamps, r.Msg.Timestamp)
 			}
 			if len(stamps) == 0 {
 				break
 			}
-			tss = stamps[0]
+			tss = stamps[len(stamps)-1]
+		}
+
+		lastUser := ""
+		for _, m := range stack {
+			if m.User != lastUser {
+				fmt.Println("</p>")
+				lastUser = m.User
+				fmt.Println("<p>")
+			}
+			fmt.Println(m.Text)
 		}
 	}
 }
