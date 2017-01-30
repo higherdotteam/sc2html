@@ -43,15 +43,14 @@ func SaveHTML(team, room string) {
 
 		j := 0
 		for {
-			fmt.Println("syncing ", j)
 			j += 1000
 			hp := slack.HistoryParameters{Oldest: tss, Latest: "", Count: 1000, Inclusive: false, Unreads: false}
-			list, _ := api.GetGroupHistory(room, hp)
+			list, _ := api.GetIMHistory(room, hp)
 			stamps := make([]string, 0)
 			for _, r := range list.Messages {
 				//SaveMsg(team, room, r.Msg)
 				//fmt.Println(r.Msg.Timestamp)
-				//fmt.Println(r.Msg.Text)
+				fmt.Println(r.Msg.Text)
 				//fmt.Println(r.Msg.Attachments)
 				stamps = append(stamps, r.Msg.Timestamp)
 			}
@@ -59,14 +58,6 @@ func SaveHTML(team, room string) {
 				break
 			}
 			tss = stamps[0]
-			//fmt.Println("-----")
-			//time.Sleep(time.Second)
-		}
-	}
-
-	for k, v := range links {
-		if v > 2 {
-			fmt.Println(k, v)
 		}
 	}
 }
@@ -79,14 +70,6 @@ func ListRooms(team string) {
 			continue
 		}
 		api := slack.New(tokens[i])
-		list, _ := api.GetChannels(false)
-		for _, r := range list {
-			fmt.Println(r.ID, r.Name)
-		}
-		list2, _ := api.GetGroups(false)
-		for _, r := range list2 {
-			fmt.Println(r.ID, r.Name)
-		}
 		list3, _ := api.GetIMChannels()
 		for _, r := range list3 {
 			u, _ := api.GetUserInfo(r.User)
