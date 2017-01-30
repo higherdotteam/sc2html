@@ -63,11 +63,17 @@ func SaveHTML(team, room string) {
 		}
 
 		lastUser := ""
+		pclass := "student"
 		for _, m := range stack {
 			if m.User != lastUser {
+				if pclass == "student" {
+					pclass = "teacher"
+				} else {
+					pclass = "student"
+				}
 				fmt.Println("</p>")
 				lastUser = m.User
-				fmt.Println("<p>")
+				fmt.Println("<p class=\"" + pclass + "\">")
 			}
 			fmt.Println(m.Text)
 		}
